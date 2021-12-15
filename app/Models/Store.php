@@ -17,6 +17,11 @@ class Store extends Model implements HasMedia
     protected $primaryKey = 'store_id';
     protected $fillable = ['store_name','address','country','logo','website', 'folder_name','favicon'];
 
+    public function setting()
+    {
+        return $this->morphMany(Setting::class, 'model');
+    }
+    
     public function products() {
         return $this->hasMany(\App\Models\Product::class, 'store_id', 'store_id');
     }

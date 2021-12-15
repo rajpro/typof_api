@@ -19,7 +19,7 @@ class ProductController extends Controller
 	public function index(Request $request)
 	{
 		$data['status'] = true;
-		$products = $request->store->products()->get()->append('mediacollection');
+		$products = $request->store->products()->orderBy('product_id', 'desc')->get()->append('mediacollection');
 		if(!empty($products)){
 			$data['data'] = $products;
 		}else{

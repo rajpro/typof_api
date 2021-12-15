@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+use Spatie\Permission\Traits\HasRoles;
+
 class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
-    use Authenticatable, Authorizable, HasFactory;
+    use Authenticatable, Authorizable, HasFactory, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -20,7 +22,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'name', 'email',
+        'name', 'email', 'password'
     ];
 
     /**
@@ -31,6 +33,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = [
         'password',
     ];
+
+    public function setting()
+    {
+        return $this->morphMany(Setting::class, 'model');
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\StoreCategory;
@@ -15,10 +16,15 @@ class StoreCategoryController extends Controller
 		$this->middleware('store');
 	}
 
-	public function index(Request $request)
+	public function index(Request $request, $id='')
 	{
 		$data['status'] = true;
-		$store_category = $request->store->store_category()->get()->append('mediacollection');
+		if(!empty($id)){
+			$store_category = $request->store->store_category()->where('id', $id)->get()->append('mediacollection');
+		}else{
+			$store_category = $request->store->store_category()->get()->append('mediacollection');
+		}
+		
 		if(!empty($store_category)){
 			$data['data'] = $store_category;
 		}else{
@@ -33,17 +39,7 @@ class StoreCategoryController extends Controller
 		$data = $request->all();
 		$response['status'] = true;
 		$validator = Validator::make($request->all(), [
-			"product_name" => 'required',
-			"category" => 'required',
-			"price" => 'required|numeric',
-			"mrp" => 'numeric',
-			"cost" => 'numeric',
-			"gstper" => 'numeric',
-			"shipping_cost" => 'numeric',
-			"available" => 'required|numeric',
-			"sku" => 'required|max:15',
-			"published_status" => 'required|in:P,D',
-			"is_saleable" => 'required|in:yes,no'
+			"category_name" => 'required',
 		]);
 
 		if($validator->fails()){
@@ -52,20 +48,17 @@ class StoreCategoryController extends Controller
 			return response()->json($response);
 		}
 		$data['store_id'] = $request->store->store_id;
-        $data['slug'] = $this->__slug($request->store, $data['product_name']);
-        $cat = explode("~", $data['category']);
-        $data['category'] = $cat[0];
-        $data['sub_category'] = $cat[1];
+        $data['slug'] = $this->__slug($request->store, $data['category_name']);
+        unset($data['sub_category']);
+        // $data['sub_category'] = (!empty($data['sub_category']))?implode(",", $data['sub_category']):'';
         $saveProduct=new StoreCategory($data);
-		if($saveProduct->save()){
-			if($data['gstper'] !=''){
-			    $saveProduct->setting()->create(['type'=>'gst', 'data'=>['percent'=>$data['gstper']]]);
-			}else{
-			    $saveProduct->setting()->create(['type'=>'gst', 'data'=>['percent'=>0]]);
-			}
-		}else{
+		if(!$saveProduct->save()){
 			$response['status'] = false;
 			$response['error'] = "Failed";
+		}
+
+		if(!empty($data['image'])){
+			$saveProduct->addMedia($data['image'])->toMediaCollection('category');
 		}
 
 		return response()->json($response);
@@ -76,17 +69,7 @@ class StoreCategoryController extends Controller
 		$data = $request->all();
 		$response['status'] = true;
 		$validator = Validator::make($request->all(), [
-			"product_name" => 'required',
-			"category" => 'required',
-			"price" => 'required|numeric',
-			"mrp" => 'numeric',
-			"cost" => 'numeric',
-			"gstper" => 'numeric',
-			"shipping_cost" => 'numeric',
-			"available" => 'required|numeric',
-			"sku" => 'required|max:15',
-			"published_status" => 'required|in:P,D',
-			"is_saleable" => 'required|in:yes,no'
+			"category_name" => 'required',
 		]);
 
 		if($validator->fails()){
@@ -96,15 +79,10 @@ class StoreCategoryController extends Controller
 		}
 
         $data['slug'] = $this->__slug($request->store, $data['product_name']);
-        $cat = explode("~", $data['category']);
-        $data['category'] = $cat[0];
-        $data['sub_category'] = $cat[1];
         $updateProduct = StoreCategory::where('store_id', $request->store->store_id)->find($id);
-		if($updateProduct->update($data)){
-			
-		}else{
+		if(!$updateProduct->update($data)){
 			$response['status'] = false;
-			$response['error'] = "Product Not Update";
+			$response['error'] = "Subcategory Not Update";
 		}
 
 		return response()->json($response);
@@ -122,11 +100,11 @@ class StoreCategoryController extends Controller
 		return response()->json($response);
 	}
 
-	private function __slug($store, $product_name)
+	private function __slug($store, $category_name)
     {
-        $slug=strtolower(str_replace(' ', '-', $product_name));
+        $slug=strtolower(str_replace(' ', '-', $category_name));
         $slug=strtolower(str_replace('/', '-', $slug));
-        $pslug= Product::where('product_name',$product_name)->where('store_id', $store->store_id)->count();
+        $pslug= StoreCategory::where('category_name',$category_name)->where('store_id', $store->store_id)->count();
         if($pslug>0){
             return $slug.'-'.(string)($pslug+1);
         }else{
