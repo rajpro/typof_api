@@ -56,13 +56,16 @@ class ProductController extends Controller
         $data['slug'] = $this->__slug($request->store, $data['product_name']);
         $cat = explode("~", $data['category']);
         $data['category'] = $cat[0];
-        $data['sub_category'] = $cat[1];
+        $data['sub_category'] = $cat[1]??'';
         $saveProduct=new Product($data);
 		if($saveProduct->save()){
 			if($data['gstper'] !=''){
 			    $saveProduct->setting()->create(['type'=>'gst', 'data'=>['percent'=>$data['gstper']]]);
 			}else{
 			    $saveProduct->setting()->create(['type'=>'gst', 'data'=>['percent'=>0]]);
+			}
+			if(!empty($data['image'])){
+				$saveProduct->addMedia($data['image'])->toMediaCollection('products');
 			}
 		}else{
 			$response['status'] = false;

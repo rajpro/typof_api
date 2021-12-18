@@ -100,6 +100,8 @@ $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(Chuckrincon\LumenConfigDiscover\DiscoverServiceProvider::class);
 
+$app->alias('cache', 'Illuminate\Cache\CacheManager');
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

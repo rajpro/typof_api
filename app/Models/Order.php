@@ -14,8 +14,29 @@ class Order extends Model
         'items' => 'array'
     ];
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
+    }
+
+    public function getItemsAttribute($value)
+    {
+        $data = [];
+        $items = json_decode($value);
+        if(!empty($items)){
+            foreach ($items as $key => $value) {
+                $d = $value;
+                $d->pid = $key;
+                $data[] = $d;
+            }
+        }else{
+            $data = null;
+        }
+        return $data;
+    }
+
     public function getInvoiceIdAttribute($value)
     {
-    	return date("Ymd", strtotime($this->created_at)).$value;
+    	return date("Ymd", strtotime($this->created_at))."-".$value;
     }
 }

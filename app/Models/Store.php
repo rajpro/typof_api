@@ -21,6 +21,11 @@ class Store extends Model implements HasMedia
     {
         return $this->morphMany(Setting::class, 'model');
     }
+
+    public function extra()
+    {
+        return $this->morphMany(Extras::class, 'model');
+    }
     
     public function products() {
         return $this->hasMany(\App\Models\Product::class, 'store_id', 'store_id');

@@ -20,9 +20,9 @@ class StoreCategoryController extends Controller
 	{
 		$data['status'] = true;
 		if(!empty($id)){
-			$store_category = $request->store->store_category()->where('id', $id)->get()->append('mediacollection');
+			$store_category = $request->store->store_category()->where('id', $id)->orderBy('id', 'desc')->get()->append('mediacollection');
 		}else{
-			$store_category = $request->store->store_category()->get()->append('mediacollection');
+			$store_category = $request->store->store_category()->orderBy('id', 'desc')->get()->append('mediacollection');
 		}
 		
 		if(!empty($store_category)){

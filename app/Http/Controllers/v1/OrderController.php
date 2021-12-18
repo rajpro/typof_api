@@ -16,7 +16,7 @@ class OrderController extends Controller
 	public function index(Request $request)
 	{
 		$data['status'] = true;
-		$orders = $request->store->orders()->where('status', '!=', 'pending')->get();
+		$orders = $request->store->orders()->with('customer')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
 		if(!empty($orders)){
 			$data['data'] = $orders;
 		}else{

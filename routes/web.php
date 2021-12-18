@@ -22,6 +22,7 @@ $router->group(['prefix'=>'v1'], function() use ($router){
 		$router->post('login', "AuthController@login");
 		$router->post('register', "AuthController@register");
 		$router->post('check_email', "AuthController@check_email");
+		$router->get('test_sms', "AuthController@testing_sms");
 	});
 
 	$router->group(['middleware'=>'auth'], function() use ($router){
@@ -29,6 +30,9 @@ $router->group(['prefix'=>'v1'], function() use ($router){
 			$router->get('email_verify', "AuthController@email_verify");
 			$router->get('check_store', "AuthController@check_store");
 			$router->post('send_otp', "AuthController@send_otp");
+			$router->post('check_mobile', "AuthController@check_mobile");
+			$router->post('mobile_otp', "AuthController@send_mobile_otp");
+			$router->post('create_store', "AuthController@create_store");
 		});
 
 		// Product Controller

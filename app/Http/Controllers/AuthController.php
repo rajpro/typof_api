@@ -6,13 +6,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use App\Models\Store;
 use App\Models\DomainSetup;
 
 use App\Mail\EmailVerify;
 use App\Mail\SendMailOtp;
+use App\Mail\WelcomeMail;
+
+use App\Jobs\SendMobileOtp;
 
 
 class AuthController extends Controller
@@ -85,7 +90,15 @@ class AuthController extends Controller
     {
         $data = ['status' => true];
         $user = User::find(Auth::id());
-        // Mail::to($user->email)->send(new SendMailOtp($request['otp']));
+        Mail::to($user->email)->send(new SendMailOtp($request['otp']));
+        return response()->json($data);
+    }
+
+    public function send_mobile_otp(Request $request)
+    {
+        $data = ['status' => true, 'message'=>"OTP Sent"];
+        $message = "Your OTP from Typof is ". $request['otp'];
+        dispatch(new SendMailOtp($request['phone'], $message));
         return response()->json($data);
     }
 
@@ -102,6 +115,24 @@ class AuthController extends Controller
             $data['error'] = $validator->errors()->first();
         }else{
             $data['message'] = "Email Approved.";
+        }
+
+        return response()->json($data);
+    }
+
+    public function check_mobile(Request $request)
+    {
+        $data = ['status' => true];
+
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|unique:users',
+        ]);
+
+        if ($validator->fails()) {
+            $data['status'] = false;
+            $data['error'] = $validator->errors()->first();
+        }else{
+            $data['message'] = "Mobile Approved";
         }
 
         return response()->json($data);
@@ -126,7 +157,6 @@ class AuthController extends Controller
         $data = ['status' => true];
 
         $validator = Validator::make($request->all(), [
-            'email' => 'required',
             'store_name' => 'required|max:255',
             'mobile' => 'required|unique:store_table',
         ]);
@@ -139,7 +169,7 @@ class AuthController extends Controller
             $url = $this->_storename($request['store_name']);
             if(Store::where('website', $url)->count() > 0){
                 $data['status'] = false;
-                $data['msg'] = ['message' => 'Store Name is Already Exist'];
+                $data['message'] = 'Store Name is Already Exist';
                 return response()->json($data);
             }
             $store = [
@@ -149,10 +179,11 @@ class AuthController extends Controller
                 'folder_name' => 'default_template',
             ];
             $store = Store::create($store);
-            $store->email_id = $request['email'];
+            $user = User::where('id', Auth::user()->id)->first();
+            $store->email_id = Auth::user()->email;
             $store->mobile = $request['mobile'];
             $store->update();
-            $user = User::where('id', $request['user_id'])->first();
+            
             $user->store_id = $store->store_id;
             $user->phone = $request['mobile'];
             $user->update();
