@@ -13,10 +13,15 @@ class OrderController extends Controller
 		$this->middleware('store');
 	}
 
-	public function index(Request $request)
+	public function index(Request $request, $order_id="")
 	{
 		$data['status'] = true;
-		$orders = $request->store->orders()->with('customer')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
+		if(!empty($order_id)){
+			$orders = $request->store->orders()->where('order_id', $order_id)->with('customer')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
+		}else{
+			$orders = $request->store->orders()->with('customer')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
+		}
+		
 		if(!empty($orders)){
 			$data['data'] = $orders;
 		}else{

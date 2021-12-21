@@ -48,7 +48,7 @@ $router->group(['prefix'=>'v1'], function() use ($router){
 		$router->delete('category/{id}', "v1\StoreCategoryController@delete");
 
 		// Orders
-		$router->get('orders', "v1\OrderController@index");
+		$router->get('orders[/{order_id}]', "v1\OrderController@index");
 
 		// Customer
 		$router->get('customers', "v1\CustomerController@index");
