@@ -17,9 +17,9 @@ class OrderController extends Controller
 	{
 		$data['status'] = true;
 		if(!empty($order_id)){
-			$orders = $request->store->orders()->where('order_id', $order_id)->with('customer')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
+			$orders = $request->store->orders()->where('order_id', $order_id)->with('customer')->with('product_order.orderCom')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
 		}else{
-			$orders = $request->store->orders()->with('customer')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
+			$orders = $request->store->orders()->with('customer')->with('product_order.orderCom')->where('status', '!=', 'pending')->orderBy('order_id', 'desc')->get();
 		}
 		
 		if(!empty($orders)){

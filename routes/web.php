@@ -35,8 +35,11 @@ $router->group(['prefix'=>'v1'], function() use ($router){
 			$router->post('create_store', "AuthController@create_store");
 		});
 
+		// Dashboard
+		$router->get('dashboard', "v1\DashboardController@index");
+
 		// Product Controller
-		$router->get('product', "v1\ProductController@index");
+		$router->get('product[/{pid}]', "v1\ProductController@index");
 		$router->post('product', "v1\ProductController@create");
 		$router->put('product/{id}', "v1\ProductController@update");
 		$router->delete('product/{id}', "v1\ProductController@delete");
@@ -46,6 +49,7 @@ $router->group(['prefix'=>'v1'], function() use ($router){
 		$router->post('category', "v1\StoreCategoryController@create");
 		$router->put('category/{id}', "v1\StoreCategoryController@update");
 		$router->delete('category/{id}', "v1\StoreCategoryController@delete");
+		$router->post('category/find', "v1\StoreCategoryController@find");
 
 		// Orders
 		$router->get('orders[/{order_id}]', "v1\OrderController@index");

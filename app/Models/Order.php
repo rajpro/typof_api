@@ -19,6 +19,11 @@ class Order extends Model
         return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 
+    public function product_order()
+    {
+        return $this->belongsTo(ProductOrder::class, 'order_id', 'order_id');
+    }
+
     public function getItemsAttribute($value)
     {
         $data = [];

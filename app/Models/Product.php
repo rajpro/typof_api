@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Image\Manipulations;
@@ -10,10 +11,14 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Product extends Model implements HasMedia
 {
-    use InteractsWithMedia;
+    use InteractsWithMedia, SoftDeletes;
     protected $table = 'product_table';
     protected $primaryKey = 'product_id';
-    protected $fillable = ['store_id','seller_id','category','sub_category','product_name','available','mrp','price','cost','description','image','info', 'published_status', 'slug', 'special_category', 'is_saleable', 'sku', 'size_chart', 'brand', 'shipping_cost', 'video'];
+    protected $fillable = ['store_id','seller_id','category','sub_category','product_name','available','mrp','price','cost','description','info', 'published_status', 'slug', 'special_category', 'is_saleable', 'sku', 'size_chart', 'brand', 'shipping_cost', 'video', 'custom_fields'];
+
+    protected $casts = [
+        'custom_fields' => 'array'
+    ];
 
     public function setting()
     {

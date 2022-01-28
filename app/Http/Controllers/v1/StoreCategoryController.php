@@ -34,6 +34,20 @@ class StoreCategoryController extends Controller
 		return response()->json($data);
 	}
 
+	public function find(Request $request)
+	{
+		$data['status'] = true;
+		$store_category = $request->store->store_category()->where('category_name', $request->category_name)->orderBy('id', 'desc')->get()->append('mediacollection');
+		
+		if(!empty($store_category)){
+			$data['data'] = $store_category;
+		}else{
+			$data['status'] = false;
+			$data['error'] = "Data Not Found";
+		}
+		return response()->json($data);
+	}
+
 	public function create(Request $request)
 	{
 		$data = $request->all();
@@ -47,10 +61,11 @@ class StoreCategoryController extends Controller
 			$response['error'] = $validator->errors()->first();
 			return response()->json($response);
 		}
+
 		$data['store_id'] = $request->store->store_id;
         $data['slug'] = $this->__slug($request->store, $data['category_name']);
-        unset($data['sub_category']);
-        // $data['sub_category'] = (!empty($data['sub_category']))?implode(",", $data['sub_category']):'';
+        $data['sub_category'] = $data['sub_category']??'';
+
         $saveProduct=new StoreCategory($data);
 		if(!$saveProduct->save()){
 			$response['status'] = false;
@@ -78,7 +93,8 @@ class StoreCategoryController extends Controller
 			return response()->json($response);
 		}
 
-        $data['slug'] = $this->__slug($request->store, $data['product_name']);
+		$data['sub_category'] = $data['sub_category']??'';
+
         $updateProduct = StoreCategory::where('store_id', $request->store->store_id)->find($id);
 		if(!$updateProduct->update($data)){
 			$response['status'] = false;
@@ -91,19 +107,22 @@ class StoreCategoryController extends Controller
 	public function delete($id)
 	{
 		$data['status'] = true;
-		$product = StoreCategory::where('id',$id)->first();
-		$media = $product->getMedia('category')->first();
-        if(!empty($media)){
-            $media->delete();
-        }
+		$product = StoreCategory::where('id', $id)->first();
+		// $media = $product->getMedia('category')->first();
+  //       if(!empty($media)){
+  //           $media->delete();
+  //       }
         $product->delete();
 		return response()->json($response);
 	}
 
 	private function __slug($store, $category_name)
     {
-        $slug=strtolower(str_replace(' ', '-', $category_name));
-        $slug=strtolower(str_replace('/', '-', $slug));
+        $slug = preg_replace("/[`!@#$%^&*()_+\=\[\]{};':\"\\|,.<>\/?~\s]/", "-", $category_name);
+        $slug = preg_replace("/([-]+)/", "-", $slug);
+        $slug = preg_replace("/^([-]+)/", "", $slug);
+        $slug = preg_replace("/([-]+)$/", "", $slug);
+        $slug = strtolower($slug);
         $pslug= StoreCategory::where('category_name',$category_name)->where('store_id', $store->store_id)->count();
         if($pslug>0){
             return $slug.'-'.(string)($pslug+1);
