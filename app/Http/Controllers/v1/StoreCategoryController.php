@@ -64,9 +64,15 @@ class StoreCategoryController extends Controller
 
 		$data['store_id'] = $request->store->store_id;
         $data['slug'] = $this->__slug($request->store, $data['category_name']);
-        $data['sub_category'] = $data['sub_category']??'';
+        // if(!empty($data['sub_category'])){
+        // 	$data['sub_category'] = implode(",", $data['sub_category']);
+        // }else{
+        // 	unset($data['sub_category']);
+        // }
+        $data['sub_category'] = $data['sub_category'] ?? null;
+        
 
-        $saveProduct=new StoreCategory($data);
+        $saveProduct = new StoreCategory($data);
 		if(!$saveProduct->save()){
 			$response['status'] = false;
 			$response['error'] = "Failed";
@@ -93,9 +99,13 @@ class StoreCategoryController extends Controller
 			return response()->json($response);
 		}
 
-		$data['sub_category'] = $data['sub_category']??'';
-
         $updateProduct = StoreCategory::where('store_id', $request->store->store_id)->find($id);
+        if(!empty($data['sub_category'])){
+			$data['sub_category'] = implode(",", $data['sub_category']);
+		}else{
+			unset($data['sub_category']);
+		}
+		
 		if(!$updateProduct->update($data)){
 			$response['status'] = false;
 			$response['error'] = "Subcategory Not Update";
