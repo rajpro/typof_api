@@ -20,6 +20,20 @@ class Product extends Model implements HasMedia
         'custom_fields' => 'array'
     ];
 
+    protected $appends = [
+        'gst'
+    ];
+
+    public function getGstAttribute()
+    {
+        $query = $this->setting()->where('type', 'gst')->first();
+        if(!empty($query)){
+            return $query->data['percent']??0;
+        }else{
+            return 0;
+        }
+    }
+
     public function setting()
     {
         return $this->morphOne(\App\Models\Setting::class, 'model');
