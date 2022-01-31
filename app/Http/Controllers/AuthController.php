@@ -98,7 +98,7 @@ class AuthController extends Controller
     {
         $data = ['status' => true, 'message'=>"OTP Sent"];
         $message = "Your OTP from Typof is ". $request['otp'];
-        dispatch(new SendMailOtp($request['phone'], $message));
+        dispatch(new SendMobileOtp($request['phone'], $message));
         return response()->json($data);
     }
 

@@ -11,6 +11,6 @@ class SpatiMedia extends DefaultPathGenerator
      */
     protected function getBasePath(Media $media): string
     {
-        return 'testing/'.$media->getKey();
+        return 'media/'.$media->getKey();
     }
 }
