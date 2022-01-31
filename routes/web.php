@@ -37,6 +37,7 @@ $router->group(['prefix'=>'v1'], function() use ($router){
 
 		// Dashboard
 		$router->get('dashboard', "v1\DashboardController@index");
+		$router->get('get_store', "v1\DashboardController@get_store");
 
 		// Product Controller
 		$router->get('product[/{pid}]', "v1\ProductController@index");

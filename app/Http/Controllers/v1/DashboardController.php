@@ -34,6 +34,13 @@ class DashboardController extends Controller
 		return response()->json($data);
 	}
 
+	public function get_store(Request $request)
+	{
+		$data = ['status' => true];
+		$data['data'] = $request->store;
+		return response()->json($data);
+	}
+
 	private function __todaySales($store_id)
 	{
 		return number_format(Order::where('status', '!=', 'pending')
