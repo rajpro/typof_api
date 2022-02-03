@@ -14,7 +14,7 @@ class Product extends Model implements HasMedia
     use InteractsWithMedia, SoftDeletes;
     protected $table = 'product_table';
     protected $primaryKey = 'product_id';
-    protected $fillable = ['store_id','seller_id','category','sub_category','product_name','available','mrp','price','cost','description','info', 'published_status', 'slug', 'special_category', 'is_saleable', 'sku', 'size_chart', 'brand', 'shipping_cost', 'video', 'custom_fields'];
+    protected $fillable = ['store_id','seller_id','category','sub_category','product_name','available','mrp','price','cost','description','info', 'published_status', 'slug', 'special_category', 'is_saleable', 'sku', 'size_chart', 'brand', 'shipping_cost', 'video', 'custom_fields', 'hsn'];
 
     protected $casts = [
         'custom_fields' => 'array'
@@ -28,7 +28,7 @@ class Product extends Model implements HasMedia
     {
         $query = $this->setting()->where('type', 'gst')->first();
         if(!empty($query)){
-            return $query->data['percent']??0;
+            return (int)$query->data['percent']??0;
         }else{
             return 0;
         }
